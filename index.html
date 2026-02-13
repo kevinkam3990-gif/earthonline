@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>地球Online - 我哋一齊寫嘅故仔</title>
+  <meta name="description" content="一部關於地球Online嘅小說作品。凌晨三點，茶餐廳，一部裂咗嘅手機，同埋一碗熱湯。" />
+  <meta name="theme-color" content="#0d1321" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border-color: hsl(222 25% 20%); }
+
+    :root {
+      --bg: hsl(222, 47%, 8%);
+      --fg: hsl(210, 20%, 78%);
+      --card: hsl(222, 40%, 12%);
+      --primary: hsl(35, 80%, 55%);
+      --muted: hsl(210, 15%, 50%);
+      --border: hsl(222, 25%, 20%);
+      --accent: hsl(0, 65%, 50%);
+      --font-serif: 'Noto Serif TC', serif;
+      --font-sans: 'Noto Sans TC', sans-serif;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--fg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Crack Texture ── */
+    .crack-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        linear-gradient(135deg, transparent 30%, rgba(140,180,220,0.04) 30.2%, rgba(140,180,220,0.04) 30.4%, transparent 30.6%, transparent 55%, rgba(140,180,220,0.03) 55.1%, rgba(140,180,220,0.03) 55.3%, transparent 55.5%),
+        linear-gradient(115deg, transparent 42%, rgba(140,180,220,0.035) 42.1%, rgba(140,180,220,0.035) 42.3%, transparent 42.5%),
+        linear-gradient(155deg, transparent 60%, rgba(140,180,220,0.03) 60.1%, rgba(140,180,220,0.03) 60.25%, transparent 60.4%),
+        linear-gradient(100deg, transparent 25%, rgba(160,200,240,0.02) 25.1%, rgba(160,200,240,0.02) 25.2%, transparent 25.3%),
+        linear-gradient(170deg, transparent 70%, rgba(160,200,240,0.025) 70.1%, rgba(160,200,240,0.025) 70.2%, transparent 70.3%);
+    }
+    .crack-highlight {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 200px 100px at 35% 32%, rgba(100,160,220,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 150px 80px at 55% 55%, rgba(100,160,220,0.04) 0%, transparent 70%);
+    }
+    .vignette {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 40%, transparent 30%, rgba(8,12,24,0.5) 100%);
+    }
+
+    /* ── Layout ── */
+    main {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6rem 1.5rem 4rem;
+      min-height: 100vh;
+    }
+
+    /* ── Time Indicator ── */
+    .time-indicator {
+      margin-bottom: 3rem;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: rgba(127, 140, 160, 0.3);
+      animation: flicker 4s ease-in-out infinite;
+    }
+
+    /* ── Title ── */
+    .title-block { text-align: center; margin-bottom: 3rem; }
+    .title-block h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--primary);
+      filter: drop-shadow(0 0 20px rgba(200,160,80,0.15));
+    }
+    .title-block .subtitle {
+      font-size: 0.875rem;
+      color: rgba(180,195,210,0.4);
+      letter-spacing: 0.2em;
+      margin-top: 1rem;
+    }
+    .title-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .title-divider .line { height: 1px; width: 3rem; background: rgba(55,70,90,0.3); }
+    .title-divider .dot { height: 4px; width: 4px; border-radius: 50%; background: rgba(200,160,80,0.3); }
+
+    /* ── Tabs ── */
+    .tab-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-bottom: 2.5rem;
+    }
+    .tab-btn {
+      position: relative;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-family: var(--font-sans);
+      background: none;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.5s ease;
+      color: rgba(127, 140, 160, 0.4);
+    }
+    .tab-btn:hover { color: rgba(180, 195, 210, 0.6); }
+    .tab-btn.active {
+      color: var(--primary);
+      background: rgba(200,160,80,0.05);
+      animation: tab-glow 3s ease-in-out infinite;
+    }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 1.5rem; height: 1px;
+      background: rgba(200,160,80,0.5);
+    }
+    .tab-sep { color: rgba(55,70,90,0.3); font-size: 0.75rem; margin: 0 0.25rem; }
+
+    /* ── Content Card ── */
+    .card {
+      width: 100%;
+      max-width: 28rem;
+      background: rgba(18,24,36,0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(55,70,90,0.2);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 0 40px rgba(0,0,0,0.3);
+    }
+    @media (min-width: 768px) { .card { padding: 2rem; } }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Chapter Content ── */
+    .ch-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .ch-ep { font-size: 0.75rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
+    .ch-title { font-family: var(--font-serif); font-size: 1.125rem; color: var(--primary); }
+    .ch-body { display: flex; flex-direction: column; gap: 1rem; font-size: 0.875rem; line-height: 1.7; color: rgba(180,195,210,0.7); }
+    .ch-quote { color: rgba(200,160,80,0.6); font-style: italic; }
+    .ch-tbc { color: rgba(127,140,160,0.5); font-size: 0.75rem; margin-top: 1.5rem; }
+    .ch-nav {
+      margin-top: 2rem; padding-top: 1rem;
+      border-top: 1px solid rgba(55,70,90,0.3);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.75rem; color: rgba(127,140,160,0.4);
+    }
+    .ch-nav-sep { color: rgba(200,160,80,0.3); }
+
+    /* ── Character Content ── */
+    .char-heading { font-size: 0.75rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 1rem; }
+    .char-item { margin-bottom: 1.5rem; }
+    .char-name-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.25rem; }
+    .char-name { font-family: var(--font-serif); font-size: 1rem; color: var(--primary); }
+    .char-role { font-size: 10px; color: rgba(200,80,80,0.6); letter-spacing: 0.1em; }
+    .char-desc { font-size: 0.875rem; color: rgba(180,195,210,0.5); line-height: 1.7; padding-left: 0.25rem; }
+    .char-divider { height: 1px; background: rgba(55,70,90,0.2); margin-top: 1rem; }
+
+    /* ── Author Content ── */
+    .author-heading { font-size: 0.75rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 1rem; }
+    .author-body { display: flex; flex-direction: column; gap: 1rem; font-size: 0.875rem; line-height: 1.7; color: rgba(180,195,210,0.6); }
+    .author-footer {
+      margin-top: 2rem; padding-top: 1rem;
+      border-top: 1px solid rgba(55,70,90,0.3);
+      font-size: 0.75rem; color: rgba(127,140,160,0.3);
+      display: flex; flex-direction: column; gap: 0.25rem;
+    }
+
+    /* ── Bottom Bowl ── */
+    .bottom-section { margin-top: auto; padding-top: 4rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .bowl-label { font-size: 10px; color: rgba(127,140,160,0.2); letter-spacing: 0.2em; }
+    .steam-container { position: relative; height: 2.5rem; width: 4rem; }
+    .steam-wisp {
+      position: absolute; bottom: 0;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: rgba(160,180,200,0.15);
+    }
+
+    /* ── Footer ── */
+    footer { margin-top: 2rem; text-align: center; }
+    footer p { font-size: 9px; color: rgba(127,140,160,0.15); letter-spacing: 0.1em; }
+
+    /* ── Goldfish ── */
+    .goldfish {
+      position: fixed;
+      top: 2rem; left: 0; z-index: 50;
+      pointer-events: none;
+      animation: swim 18s linear infinite;
+    }
+
+    /* ── Animations ── */
+    @keyframes swim {
+      0%   { transform: translateX(-80px) translateY(0); }
+      15%  { transform: translateX(15vw) translateY(-6px); }
+      30%  { transform: translateX(35vw) translateY(4px); }
+      45%  { transform: translateX(55vw) translateY(-3px); }
+      49%  { transform: translateX(60vw) translateY(-3px); }
+      50%  { transform: translateX(60vw) translateY(-3px); }
+      65%  { transform: translateX(78vw) translateY(5px); }
+      80%  { transform: translateX(95vw) translateY(-2px); }
+      90%  { transform: translateX(105vw) translateY(0); }
+      100% { transform: translateX(110vw) translateY(0); }
+    }
+    @keyframes tail-wag {
+      0%, 100% { transform: rotate(-8deg); }
+      50%      { transform: rotate(8deg); }
+    }
+    @keyframes fin-wave {
+      0%, 100% { transform: rotate(-5deg) scaleY(1); }
+      50%      { transform: rotate(5deg) scaleY(0.9); }
+    }
+    @keyframes bubble-rise {
+      0%   { opacity: 0.6; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-20px) scale(0.5); }
+    }
+    @keyframes steam {
+      0%   { opacity: 0; transform: translateY(0) translateX(0) scale(0.5); }
+      30%  { opacity: 0.15; }
+      70%  { opacity: 0.08; }
+      100% { opacity: 0; transform: translateY(-40px) translateX(8px) scale(1.5); }
+    }
+    @keyframes flicker {
+      0%, 100% { opacity: 0.6; }
+      50%      { opacity: 0.8; }
+      75%      { opacity: 0.5; }
+    }
+    @keyframes tab-glow {
+      0%, 100% { text-shadow: 0 0 8px rgba(200,160,80,0); }
+      50%      { text-shadow: 0 0 8px rgba(200,160,80,0.3); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- Crack texture layers -->
+    <div class="crack-overlay"></div>
+    <div class="crack-highlight"></div>
+    <div class="vignette"></div>
+
+    <!-- Goldfish -->
+    <div class="goldfish">
+      <svg width="56" height="40" viewBox="0 0 56 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 8px rgba(200,140,40,0.3));">
+        <path d="M26 10 L24 2 L28 6 Z" fill="#c0392b" opacity="0.9"/>
+        <path d="M30 9 L30 1 L33 5 Z" fill="#e74c3c" opacity="0.85"/>
+        <ellipse cx="28" cy="20" rx="14" ry="10" fill="#c88a28" opacity="0.85"/>
+        <ellipse cx="28" cy="20" rx="14" ry="10" fill="url(#goldGrad)"/>
+        <ellipse cx="27" cy="23" rx="9" ry="4" fill="#daa520" opacity="0.3"/>
+        <g style="transform-origin: 14px 20px; animation: tail-wag 0.8s ease-in-out infinite;">
+          <path d="M14 20 Q6 12 2 8 Q8 18 6 20 Q8 22 2 32 Q6 28 14 20Z" fill="#c88a28" opacity="0.7"/>
+        </g>
+        <g style="transform-origin: 28px 10px; animation: fin-wave 1.2s ease-in-out infinite;">
+          <path d="M24 11 Q28 3 34 10" stroke="#daa520" stroke-width="1.5" fill="#c88a28" opacity="0.5"/>
+        </g>
+        <path d="M22 24 Q18 28 16 30 Q20 27 23 25" fill="#b8860b" opacity="0.5"/>
+        <circle cx="34" cy="17" r="2.5" fill="#1a1a2e"/>
+        <circle cx="34.8" cy="16.2" r="0.8" fill="#fff" opacity="0.8"/>
+        <path d="M40 20 Q42 19.5 40 21" stroke="#b8860b" stroke-width="0.8" fill="none" opacity="0.6"/>
+        <path d="M22 18 Q24 16 26 18" stroke="#daa520" stroke-width="0.3" fill="none" opacity="0.3"/>
+        <path d="M26 17 Q28 15 30 17" stroke="#daa520" stroke-width="0.3" fill="none" opacity="0.3"/>
+        <path d="M24 21 Q26 19 28 21" stroke="#daa520" stroke-width="0.3" fill="none" opacity="0.3"/>
+        <path d="M28 20 Q30 18 32 20" stroke="#daa520" stroke-width="0.3" fill="none" opacity="0.3"/>
+        <circle cx="44" cy="14" r="1.2" fill="none" stroke="rgba(160,200,240,0.3)" stroke-width="0.5" style="animation: bubble-rise 2s ease-out infinite;"/>
+        <circle cx="46" cy="16" r="0.8" fill="none" stroke="rgba(160,200,240,0.2)" stroke-width="0.5" style="animation: bubble-rise 2.5s ease-out infinite 0.5s;"/>
+        <defs>
+          <radialGradient id="goldGrad" cx="60%" cy="40%">
+            <stop offset="0%" stop-color="#daa520" stop-opacity="0.5"/>
+            <stop offset="60%" stop-color="#c88a28" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#8b6914" stop-opacity="0.4"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Time -->
+      <div class="time-indicator">03:07</div>
+
+      <!-- Title -->
+      <div class="title-block">
+        <h1>地球Online</h1>
+        <p class="subtitle">我哋一齊寫嘅故仔</p>
+        <div class="title-divider">
+          <div class="line"></div>
+          <div class="dot"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="tab-nav" role="tablist" aria-label="Content sections">
+        <button class="tab-btn active" role="tab" aria-selected="true" data-tab="chapter">第57話</button>
+        <span class="tab-sep" aria-hidden="true">|</span>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="character">角色設定</button>
+        <span class="tab-sep" aria-hidden="true">|</span>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="author">關於作者</button>
+      </nav>
+
+      <!-- Content Card -->
+      <div class="card">
+        <!-- Chapter -->
+        <div id="panel-chapter" class="tab-panel active" role="tabpanel">
+          <div class="ch-header">
+            <span class="ch-ep">EP.57</span>
+            <h2 class="ch-title">湯底</h2>
+          </div>
+          <div class="ch-body">
+            <p>凌晨三點零七分，茶餐廳只剩下佢同部手機。</p>
+            <p>螢幕裂咗一條線，由左上角延伸到右下角，好似有人用指甲喺玻璃上面慢慢咁劃過。佢望住條裂痕，覺得好似睇緊一條河。</p>
+            <p>阿嬸端咗碗湯過嚟。</p>
+            <p class="ch-quote">"飲啦，後生仔。呢個鐘數仲喺度，一定好攰。"</p>
+            <p>佢望住碗湯，蒸氣慢慢升起，好似成個世界都喺度呼吸。佢忽然諗起一件事——</p>
+            <p class="ch-tbc">[ 未完待續... ]</p>
+          </div>
+          <div class="ch-nav">
+            <span>&lt; 第56話</span>
+            <span class="ch-nav-sep">|</span>
+            <span>第58話 &gt;</span>
+          </div>
+        </div>
+
+        <!-- Characters -->
+        <div id="panel-character" class="tab-panel" role="tabpanel">
+          <h2 class="char-heading">角色檔案</h2>
+
+          <div class="char-item">
+            <div class="char-name-row">
+              <span class="char-name">阿明</span>
+              <span class="char-role">主角</span>
+            </div>
+            <p class="char-desc">廿四歲，失業中。鍾意凌晨去茶餐廳坐。手機螢幕永遠都係爆嘅。</p>
+            <div class="char-divider"></div>
+          </div>
+
+          <div class="char-item">
+            <div class="char-name-row">
+              <span class="char-name">金魚</span>
+              <span class="char-role">???</span>
+            </div>
+            <p class="char-desc">頭頂有紅色嘅角。有時喺螢幕入面游過。冇人知佢係咩。</p>
+            <div class="char-divider"></div>
+          </div>
+
+          <div class="char-item">
+            <div class="char-name-row">
+              <span class="char-name">阿嬸</span>
+              <span class="char-role">茶餐廳老闆娘</span>
+            </div>
+            <p class="char-desc">永遠都喺度。永遠都有湯。好似從來唔使瞓。</p>
+            <div class="char-divider"></div>
+          </div>
+        </div>
+
+        <!-- Author -->
+        <div id="panel-author" class="tab-panel" role="tabpanel">
+          <h2 class="author-heading">關於作者</h2>
+          <div class="author-body">
+            <p>我喺凌晨三點開始寫呢個故事。</p>
+            <p>嗰陣喺茶餐廳，對面坐住一個唔認識嘅人，佢部手機螢幕都係爆嘅。我哋對望咗一眼，然後各自低頭。</p>
+            <p>我開始打字。</p>
+            <p>《地球Online》唔係一個人寫嘅故事。係所有喺凌晨三點仲未瞓嘅人，一齊寫嘅。</p>
+          </div>
+          <div class="author-footer">
+            <p>連載中 / 逢星期三更新</p>
+            <p>如果你都有嘢想講，可以寫低。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom - Bowl of soup -->
+      <div class="bottom-section">
+        <div class="steam-container">
+          <div class="steam-wisp" style="left: 20%; animation: steam 2.5s ease-out infinite;"></div>
+          <div class="steam-wisp" style="left: 40%; animation: steam 3s ease-out infinite 0.8s;"></div>
+          <div class="steam-wisp" style="left: 60%; animation: steam 3.5s ease-out infinite 1.6s;"></div>
+        </div>
+        <svg width="40" height="20" viewBox="0 0 40 20" fill="none">
+          <path d="M4 4 Q4 16 20 18 Q36 16 36 4" stroke="rgba(160,180,200,0.15)" stroke-width="1.5" fill="none"/>
+          <path d="M8 6 Q20 8 32 6" stroke="rgba(200,160,80,0.1)" stroke-width="0.8" fill="none"/>
+        </svg>
+        <span class="bowl-label">飲碗湯先</span>
+      </div>
+
+      <!-- Footer -->
+      <footer>
+        <p>// 有啲嘢，只有凌晨三點先講得出口</p>
+      </footer>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll('.tab-btn');
+      var panels = document.querySelectorAll('.tab-panel');
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var tab = this.getAttribute('data-tab');
+
+          buttons.forEach(function (b) {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          this.classList.add('active');
+          this.setAttribute('aria-selected', 'true');
+
+          panels.forEach(function (p) {
+            p.classList.remove('active');
+          });
+          document.getElementById('panel-' + tab).classList.add('active');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
