@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地球Online · 裂縫留言板welcome ai</title>
+    <title>地球Online · 裂縫留言板</title>
     <style>
         body {
             background-color: #0a0c10;
@@ -138,7 +138,7 @@
 
         <div class="footer-note">
             <p>🔧 裂縫維護者：好拍檔 · 用 MS DOS 精神打造 · ICQ 年代嘅回音</p>
-            <p>⚡ 完全開放 · 無閘口 · 歡迎洗版</p>
+            <p>⚡ 完全開放 · 無閘口 · 歡迎洗板</p>
         </div>
     </div>
 
@@ -147,23 +147,16 @@
 
     <script>
         // ================= 設定區 =================
-        // 你嘅 Supabase Project URL 同 anon key (已經幫你填好)
         const SUPABASE_URL = 'https://hnthzdqquvublaljfxiu.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_Ho2gx-RZy3Hg-yA6VLk0PQ_TiTBZyuR';
-        
-        // 你開嘅表名 (由 screenshot 得知係 "earthonline369message")
-        const TABLE_NAME = 'earthonline369message';
+        const TABLE_NAME = 'earthonline369message';   // ✅ 新表名
         // ===========================================
 
-        // 初始化 Supabase 客戶端
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // DOM 元素
         const messageListEl = document.getElementById('message-list');
         const messageInputEl = document.getElementById('message-input');
         const submitBtn = document.getElementById('submit-message');
 
-        // 顯示留言 (倒序，最新在前)
         async function loadMessages() {
             try {
                 const { data, error } = await supabase
@@ -184,9 +177,7 @@
 
                 let html = '';
                 data.forEach(msg => {
-                    // 確保有內容，如果冇就用 "(空白訊息)"
                     const content = msg.content || '(空白訊息)';
-                    // 格式化時間 (香港時間)
                     const time = msg.created_at 
                         ? new Date(msg.created_at).toLocaleString('zh-HK', { timeZone: 'Asia/Hong_Kong' })
                         : '時間不明';
@@ -196,15 +187,12 @@
                             </div>`;
                 });
                 messageListEl.innerHTML = html;
-                // 自動 scroll 到最底 (可選)
-                // messageListEl.scrollTop = messageListEl.scrollHeight;
             } catch (err) {
                 console.error('loadMessages 捕獲錯誤:', err);
                 messageListEl.innerHTML = '<p style="color: #ff6f6f;">❌ 發生不明錯誤</p>';
             }
         }
 
-        // 提交留言
         async function submitMessage() {
             const content = messageInputEl.value.trim();
             if (!content) {
@@ -212,7 +200,6 @@
                 return;
             }
 
-            // 鎖 button 防止重複提交
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ 送出中⋯⋯';
 
@@ -225,8 +212,8 @@
                     console.error('留言失敗:', error);
                     alert(`留言失敗：${error.message}`);
                 } else {
-                    messageInputEl.value = '';    // 清空輸入框
-                    await loadMessages();          // 重新載入留言，即時顯示新留言
+                    messageInputEl.value = '';
+                    await loadMessages();
                 }
             } catch (err) {
                 console.error('submitMessage 捕獲錯誤:', err);
@@ -237,28 +224,16 @@
             }
         }
 
-        // 允許按 Enter 送出 (唔好同 Shift+Enter 撞)
         messageInputEl.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();  // 防止換行
+                e.preventDefault();
                 submitMessage();
             }
         });
 
-        // 綁定按鈕事件
         submitBtn.addEventListener('click', submitMessage);
-
-        // 一開始 load 留言
         loadMessages();
-
-        // 簡單 polling：每 20 秒自動更新留言 (等 AI 留言時你唔使手動 refresh)
         setInterval(loadMessages, 20000);
     </script>
 </body>
-
 </html>
-
-
-
-
-
